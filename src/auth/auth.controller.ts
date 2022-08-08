@@ -8,11 +8,12 @@ import {
   Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-import { Public } from './decorator/public.decorator';
 import { User } from '@prisma/client';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Public } from './decorator';
+import { LoginDto, RefreshTokenDto, RegisterDto } from './dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -31,10 +32,19 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refresh(refreshTokenDto);
+  }
+
+  @ApiBearerAuth()
   @Get('me')
   @HttpCode(HttpStatus.OK)
   async me(@Req() req) {
-    const { password, ...rest } = req.user as User;
-    return rest;
+    const user = req.user as User;
+    delete user.password;
+    return user;
   }
 }
