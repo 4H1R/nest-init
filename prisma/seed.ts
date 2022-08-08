@@ -8,6 +8,7 @@ const user = async () => ({
   name: faker.name.findName(),
   email: faker.unique(faker.internet.email).toLowerCase(),
   password: await bcrypt.hash('password', 10),
+  emailVerifiedAt: faker.datatype.boolean() ? new Date() : null,
 });
 
 const generateFakeData = async <T>(func: () => Promise<T>, count = 50) => {
