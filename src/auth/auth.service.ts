@@ -46,7 +46,7 @@ export class AuthService {
 
   public async refresh(refreshTokenDto: RefreshTokenDto) {
     try {
-      const token: any = this.jwt.verify(refreshTokenDto.token);
+      const token: any = this.jwt.verify(refreshTokenDto.refreshToken);
       // we specifically sign refreshToken with type 'refresh'
       if (token.type !== 'refresh') throw new UnauthorizedException();
       const user = await this.prisma.user.findUnique({
@@ -54,7 +54,7 @@ export class AuthService {
       });
 
       const tokens = this.generateTokens(user);
-      return { ...tokens, refreshToken: refreshTokenDto.token };
+      return { ...tokens, refreshToken: refreshTokenDto.refreshToken };
     } catch (e) {
       // token is not signed by us
       throw new UnauthorizedException();
