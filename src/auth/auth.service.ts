@@ -5,6 +5,7 @@ import { ValidationErrorException } from 'src/common/exception';
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { exclude } from 'src/utils';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,7 @@ export class AuthService {
         email: 'This email has already been taken.',
       });
 
-    const password = await this.hash(registerDto.password);
+    const password = await bcrypt.hash(registerDto.password, 10);
     const createdUser = await this.prisma.user.create({
       data: {
         ...registerDto,
@@ -46,7 +47,7 @@ export class AuthService {
 
   public async refresh(refreshTokenDto: RefreshTokenDto) {
     try {
-      const token: any = this.jwt.verify(refreshTokenDto.refreshToken);
+      const token = this.jwt.verify(refreshTokenDto.refreshToken);
       // we specifically sign refreshToken with type 'refresh'
       if (token.type !== 'refresh') throw new UnauthorizedException();
       const user = await this.prisma.user.findUnique({
@@ -61,8 +62,11 @@ export class AuthService {
     }
   }
 
+  public me(user: User) {
+    return exclude(user, 'password');
+  }
+
   private generateTokens(user: User) {
-    delete user.password;
     const payload = { email: user.email, sub: user.id };
 
     return {
@@ -71,12 +75,8 @@ export class AuthService {
         { ...payload, type: 'refresh' },
         { expiresIn: '1w' },
       ),
-      user,
+      user: this.me(user),
     };
-  }
-
-  private async hash(password: string) {
-    return await bcrypt.hash(password, 10);
   }
 
   private throwInvalidCredentials() {

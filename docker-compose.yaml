@@ -1,11 +1,5 @@
 version: '3.8'
 services:
-  mailhog:
-    image: mailhog/mailhog:latest
-    restart: always
-    ports:
-      - 1025:1025
-      - 8025:8025
   database:
     image: postgres:13
     ports:

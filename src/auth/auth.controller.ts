@@ -42,9 +42,8 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  async me(@Req() req) {
+  me(@Req() req) {
     const user = req.user as User;
-    delete user.password;
-    return user;
+    return this.authService.me(user);
   }
 }
