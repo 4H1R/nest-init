@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { User } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Public } from './decorator';
+import { CurrentUser, Public } from './decorator';
 import { LoginDto, RefreshTokenDto, RegisterDto } from './dto';
 
 @ApiTags('auth')
@@ -42,8 +42,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   @HttpCode(HttpStatus.OK)
-  me(@Req() req) {
-    const user = req.user as User;
+  me(@CurrentUser() user: User) {
     return this.authService.me(user);
   }
 }
