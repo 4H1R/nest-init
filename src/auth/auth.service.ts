@@ -31,7 +31,7 @@ export class AuthService {
       },
     });
 
-    return this.generateTokens(createdUser);
+    return this.createAuthResponse(createdUser);
   }
 
   public async login(loginDto: LoginDto) {
@@ -43,7 +43,7 @@ export class AuthService {
     const isValid = await bcrypt.compare(loginDto.password, user.password);
     if (!isValid) this.throwInvalidCredentials();
 
-    return this.generateTokens(user);
+    return this.createAuthResponse(user);
   }
 
   public async refresh(refreshToken: string) {
@@ -53,7 +53,7 @@ export class AuthService {
         where: { id: token.sub },
       });
 
-      const tokens = this.generateTokens(user);
+      const tokens = this.createAuthResponse(user);
       return exclude(tokens, 'refreshToken');
     } catch (e) {
       // token is not signed by us
@@ -65,7 +65,7 @@ export class AuthService {
     return exclude(user, 'password');
   }
 
-  private generateTokens(user: User) {
+  private createAuthResponse(user: User) {
     const payload = { email: user.email, sub: user.id };
 
     return {

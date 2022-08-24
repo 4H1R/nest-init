@@ -16,6 +16,8 @@ import { AuthService } from './auth.service';
 import { CurrentUser, Public } from './decorator';
 import { LoginDto, RegisterDto } from './dto';
 
+const REFRESH_COOKIE_KEY = 'refresh';
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
@@ -51,7 +53,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(@Req() req: Request) {
-    return this.authService.refresh(req.cookies['refresh']);
+    return this.authService.refresh(req.cookies[REFRESH_COOKIE_KEY]);
   }
 
   @ApiBearerAuth()
@@ -62,7 +64,7 @@ export class AuthController {
   }
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
-    return res.cookie('refresh', refreshToken, {
+    return res.cookie(REFRESH_COOKIE_KEY, refreshToken, {
       httpOnly: true,
     });
   }

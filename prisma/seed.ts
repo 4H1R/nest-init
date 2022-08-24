@@ -11,12 +11,12 @@ const user = async () => ({
   emailVerifiedAt: faker.datatype.boolean() ? new Date() : null,
 });
 
-const generateFakeData = async <T>(func: () => Promise<T>, count = 50) => {
+const createFakeData = async <T>(func: () => Promise<T>, count = 50) => {
   return await Promise.all(Array(count).fill(null).map(func));
 };
 
 async function main() {
-  const usersData = await generateFakeData(user);
+  const usersData = await createFakeData(user);
   await prisma.user.createMany({ data: usersData });
 }
 
