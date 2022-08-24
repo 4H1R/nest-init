@@ -1,11 +1,12 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { transformValidationErrors } from 'src/utils';
-import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+
+import { AppModule } from './app.module';
+import { transformValidationErrors } from 'src/utils';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
