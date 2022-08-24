@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 const user = async () => ({
-  name: faker.name.findName(),
+  name: faker.name.fullName(),
   email: faker.unique(faker.internet.email).toLowerCase(),
   password: await bcrypt.hash('password', 10),
   emailVerifiedAt: faker.datatype.boolean() ? new Date() : null,
