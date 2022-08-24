@@ -14,7 +14,7 @@ export class AuthService {
   constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
   public async register(registerDto: RegisterDto) {
-    const { name, password, email } = registerDto;
+    const { password, email } = registerDto;
     const lowercasedEmail = email.toLocaleLowerCase();
     const user = await this.prisma.user.findUnique({
       where: { email: lowercasedEmail },
