@@ -14,8 +14,10 @@ export class AuthService {
   constructor(private prisma: PrismaService, private jwt: JwtService) {}
 
   public async register(registerDto: RegisterDto) {
+    const { name, password, email } = registerDto;
+    const lowercasedEmail = email.toLocaleLowerCase();
     const user = await this.prisma.user.findUnique({
-      where: { email: registerDto.email.toLocaleLowerCase() },
+      where: { email: lowercasedEmail },
     });
 
     if (user)
@@ -23,12 +25,12 @@ export class AuthService {
         email: 'This email has already been taken.',
       });
 
-    const password = await bcrypt.hash(registerDto.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     const createdUser = await this.prisma.user.create({
       data: {
         ...registerDto,
-        email: registerDto.email.toLocaleLowerCase(),
-        password,
+        email: lowercasedEmail,
+        password: hashedPassword,
       },
     });
 
@@ -36,13 +38,14 @@ export class AuthService {
   }
 
   public async login(loginDto: LoginDto) {
+    const { email, password } = loginDto;
     const user = await this.prisma.user.findUnique({
-      where: { email: loginDto.email },
+      where: { email },
     });
 
     if (!user) this.throwInvalidCredentials();
-    const isValid = await bcrypt.compare(loginDto.password, user.password);
-    if (!isValid) this.throwInvalidCredentials();
+    const passwordsMatch = await bcrypt.compare(password, user.password);
+    if (!passwordsMatch) this.throwInvalidCredentials();
 
     return this.createAuthResponse(user);
   }
