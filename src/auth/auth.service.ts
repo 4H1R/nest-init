@@ -7,6 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ValidationErrorException } from 'src/common/exception';
 import { LoginDto, RegisterDto } from './dto';
 import { exclude } from 'src/utils';
+import { PayloadEntity } from './entity';
 
 @Injectable()
 export class AuthService {
@@ -66,7 +67,7 @@ export class AuthService {
   }
 
   private createAuthResponse(user: User) {
-    const payload = { email: user.email, sub: user.id };
+    const payload: PayloadEntity = { sub: user.id };
 
     return {
       accessToken: this.jwt.sign(payload),
