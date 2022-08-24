@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { ValidationErrorException } from 'src/common/exception';
-import { LoginDto, RefreshTokenDto, RegisterDto } from './dto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+
+import { PrismaService } from 'src/prisma/prisma.service';
+import { ValidationErrorException } from 'src/common/exception';
+import { LoginDto, RegisterDto } from './dto';
 import { exclude } from 'src/utils';
 
 @Injectable()
@@ -45,17 +46,15 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
-  public async refresh(refreshTokenDto: RefreshTokenDto) {
+  public async refresh(refreshToken: string) {
     try {
-      const token = this.jwt.verify(refreshTokenDto.refreshToken);
-      // we specifically sign refreshToken with type 'refresh'
-      if (token.type !== 'refresh') throw new UnauthorizedException();
+      const token = this.jwt.verify(refreshToken);
       const user = await this.prisma.user.findUnique({
         where: { id: token.sub },
       });
 
       const tokens = this.generateTokens(user);
-      return { ...tokens, refreshToken: refreshTokenDto.refreshToken };
+      return exclude(tokens, 'refreshToken');
     } catch (e) {
       // token is not signed by us
       throw new UnauthorizedException();
@@ -71,10 +70,7 @@ export class AuthService {
 
     return {
       accessToken: this.jwt.sign(payload),
-      refreshToken: this.jwt.sign(
-        { ...payload, type: 'refresh' },
-        { expiresIn: '1w' },
-      ),
+      refreshToken: this.jwt.sign(payload, { expiresIn: '1w' }),
       user: this.me(user),
     };
   }
